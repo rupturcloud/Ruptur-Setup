@@ -1,0 +1,6 @@
+.env
+.env.local
+*.rendered.yaml
+node_modules/
+build/
+dist/

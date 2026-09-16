@@ -1,0 +1,278 @@
+version: "3.7"
+services:
+
+## --------------------------- RUPTUR --------------------------- ##
+
+  chatwoot@@INSTANCE_SUFFIX@@_app:
+    image: '@@CHATWOOT_IMAGE@@'
+    command: >
+     sh -c "echo 'Rails.application.config.active_storage.variant_processor = :mini_magick' > /app/config/initializers/active_storage.rb && bundle exec rails db:chatwoot_prepare && bundle exec rails s -p 3000 -b 0.0.0.0"
+    entrypoint: docker/entrypoints/rails.sh
+
+    volumes:
+      - 'chatwoot@@INSTANCE_SUFFIX@@_storage:/app/storage'
+      - 'chatwoot@@INSTANCE_SUFFIX@@_public:/app/public'
+      - 'chatwoot@@INSTANCE_SUFFIX@@_mailer:/app/app/views/devise/mailer'
+      - 'chatwoot@@INSTANCE_SUFFIX@@_mailers:/app/app/views/mailers'
+
+    networks:
+      - '@@nome_rede_interna@@'
+
+    environment:
+    ## 🏢 Nome da Empresa
+      INSTALLATION_NAME: '@@nome_empresa_chatwoot@@'
+      BRAND_NAME: '@@nome_empresa_chatwoot@@'
+      BRAND_URL: '@@BASE_URL@@'
+      MAILER_SUPPORT_EMAIL: '@@SUPPORT_EMAIL@@'
+      CW_ENABLE_ENTERPRISE: '@@CW_ENABLE_ENTERPRISE@@'
+      ENTERPRISE_TOKEN: '@@ENTERPRISE_TOKEN@@'
+
+    ## 🔐 Secret key
+      SECRET_KEY_BASE: '@@encryption_key@@'
+
+    ## 💬 Url Chatwoot
+      FRONTEND_URL: 'https://@@url_chatwoot@@'
+      #- CHATWOOT_HUB_URL=https://@@url_chatwoot@@
+      FORCE_SSL: 'true'
+
+    ## 🌍 Idioma/Localização padrão
+      DEFAULT_LOCALE: 'pt_BR'
+      TZ: 'America/Sao_Paulo'
+
+    ## ☁️ Google Cloud - Modifique de acordo com os seus dados
+      #- GOOGLE_OAUTH_CLIENT_ID=369777777777-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com
+      #- GOOGLE_OAUTH_CLIENT_SECRET=ABCDEF-GHijklmnoPqrstuvwX-yz1234567
+      #- GOOGLE_OAUTH_CALLBACK_URL=https://<your-server-domain>/omniauth/google_oauth2/callback
+
+    ## 🔐 Facebook e Instagram
+      #- IG_VERIFY_TOKEN=
+      #- FB_VERIFY_TOKEN=
+      #- FB_APP_SECRET=
+      #- FB_APP_ID=
+
+    ## 🧑‍💻 Dados do Redis
+      REDIS_URL: 'redis://chatwoot@@INSTANCE_SUFFIX@@_redis:6379'
+
+    ## 🗄️ Dados do Postgres
+      POSTGRES_HOST: 'pgvector'
+      POSTGRES_USERNAME: 'postgres'
+      POSTGRES_PASSWORD: '@@senha_pgvector@@'
+      POSTGRES_DATABASE: 'chatwoot@@INSTANCE_SUFFIX@@'
+
+    ## 🏠 Armazenamento
+      ACTIVE_STORAGE_SERVICE: 'local'
+      #- STORAGE_BUCKET_NAME=chatwoot@@INSTANCE_SUFFIX@@
+      #- STORAGE_ACCESS_KEY_ID=ACCESS_KEY_MINIO
+      #- STORAGE_SECRET_ACCESS_KEY=SECRET_KEY_MINIO
+      #- STORAGE_REGION=eu-south
+      #- STORAGE_ENDPOINT=https://s3.DOMINIO.COM
+      #- STORAGE_FORCE_PATH_STYLE=true
+
+    ## 📧 Dados do SMTP
+      MAILER_SENDER_EMAIL: '@@email_admin_chatwoot@@ <@@email_admin_chatwoot@@>'
+      SMTP_DOMAIN: '@@dominio_smtp_chatwoot@@'
+      SMTP_ADDRESS: '@@smtp_email_chatwoot@@'
+      SMTP_PORT: '@@porta_smtp_chatwoot@@'
+      SMTP_SSL: '@@sobre_ssl@@'
+      SMTP_USERNAME: '@@user_smtp_chatwoot@@'
+      SMTP_PASSWORD: '@@senha_email_chatwoot@@'
+      SMTP_AUTHENTICATION: '@@SMTP_AUTHENTICATION@@'
+      SMTP_ENABLE_STARTTLS_AUTO: '@@chat_starttls@@'
+      SMTP_OPENSSL_VERIFY_MODE: 'peer'
+      MAILER_INBOUND_EMAIL_DOMAIN: '@@email_admin_chatwoot@@'
+
+    ## ⚙️ Melhorias
+      SIDEKIQ_CONCURRENCY: '10'
+      RACK_TIMEOUT_SERVICE_TIMEOUT: '0'
+      RAILS_MAX_THREADS: '5'
+      WEB_CONCURRENCY: '2'
+      ENABLE_RACK_ATTACK: 'false'
+
+    ## ⚡ Outras configurações
+      NODE_ENV: 'production'
+      RAILS_ENV: 'production'
+      INSTALLATION_ENV: 'docker'
+      RAILS_LOG_TO_STDOUT: 'true'
+      USE_INBOX_AVATAR_FOR_BOT: 'true'
+      ENABLE_ACCOUNT_SIGNUP: 'false'
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+      labels:
+        - traefik.enable=true
+        - 'traefik.http.routers.chatwoot@@INSTANCE_SUFFIX@@_app.rule=Host(`@@url_chatwoot@@`)'
+        - 'traefik.http.routers.chatwoot@@INSTANCE_SUFFIX@@_app.entrypoints=websecure'
+        - 'traefik.http.routers.chatwoot@@INSTANCE_SUFFIX@@_app.tls.certresolver=letsencryptresolver'
+        - 'traefik.http.routers.chatwoot@@INSTANCE_SUFFIX@@_app.priority=1'
+        - 'traefik.http.routers.chatwoot@@INSTANCE_SUFFIX@@_app.service=chatwoot@@INSTANCE_SUFFIX@@_app'
+        - 'traefik.http.services.chatwoot@@INSTANCE_SUFFIX@@_app.loadbalancer.server.port=3000'
+        - 'traefik.http.services.chatwoot@@INSTANCE_SUFFIX@@_app.loadbalancer.passHostHeader=true'
+        - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
+        - 'traefik.http.routers.chatwoot@@INSTANCE_SUFFIX@@_app.middlewares=sslheader'
+
+## --------------------------- RUPTUR --------------------------- ##
+
+  chatwoot@@INSTANCE_SUFFIX@@_sidekiq:
+    image: '@@CHATWOOT_IMAGE@@'
+    command: bundle exec sidekiq -C config/sidekiq.yml
+
+    volumes:
+      - 'chatwoot@@INSTANCE_SUFFIX@@_storage:/app/storage'
+      - 'chatwoot@@INSTANCE_SUFFIX@@_public:/app/public'
+      - 'chatwoot@@INSTANCE_SUFFIX@@_mailer:/app/app/views/devise/mailer'
+      - 'chatwoot@@INSTANCE_SUFFIX@@_mailers:/app/app/views/mailers'
+
+    networks:
+      - '@@nome_rede_interna@@'
+
+    environment:
+    ## 🏢 Nome da Empresa
+      INSTALLATION_NAME: '@@nome_empresa_chatwoot@@'
+      BRAND_NAME: '@@nome_empresa_chatwoot@@'
+      BRAND_URL: '@@BASE_URL@@'
+      MAILER_SUPPORT_EMAIL: '@@SUPPORT_EMAIL@@'
+      CW_ENABLE_ENTERPRISE: '@@CW_ENABLE_ENTERPRISE@@'
+      ENTERPRISE_TOKEN: '@@ENTERPRISE_TOKEN@@'
+
+    ## 🔐 Secret key
+      SECRET_KEY_BASE: '@@encryption_key@@'
+
+    ## 💬 Url Chatwoot
+      FRONTEND_URL: 'https://@@url_chatwoot@@'
+      #- CHATWOOT_HUB_URL=https://@@url_chatwoot@@
+      FORCE_SSL: 'true'
+
+    ## 🌍 Idioma/Localização padrão
+      DEFAULT_LOCALE: 'pt_BR'
+      TZ: 'America/Sao_Paulo'
+
+    ## ☁️ Google Cloud - Modifique de acordo com os seus dados
+      #- GOOGLE_OAUTH_CLIENT_ID=369777777777-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com
+      #- GOOGLE_OAUTH_CLIENT_SECRET=ABCDEF-GHijklmnoPqrstuvwX-yz1234567
+      #- GOOGLE_OAUTH_CALLBACK_URL=https://<your-server-domain>/omniauth/google_oauth2/callback
+
+    ## 🔐 Facebook e Instagram
+      #- IG_VERIFY_TOKEN=
+      #- FB_VERIFY_TOKEN=
+      #- FB_APP_SECRET=
+      #- FB_APP_ID=
+
+    ## 🧑‍💻 Dados do Redis
+      REDIS_URL: 'redis://chatwoot@@INSTANCE_SUFFIX@@_redis:6379'
+
+    ## 🗄️ Dados do Postgres
+      POSTGRES_HOST: 'pgvector'
+      POSTGRES_USERNAME: 'postgres'
+      POSTGRES_PASSWORD: '@@senha_pgvector@@'
+      POSTGRES_DATABASE: 'chatwoot@@INSTANCE_SUFFIX@@'
+
+    ## 🏠 Armazenamento
+      ACTIVE_STORAGE_SERVICE: 'local'
+      #- STORAGE_BUCKET_NAME=chatwoot@@INSTANCE_SUFFIX@@
+      #- STORAGE_ACCESS_KEY_ID=ACCESS_KEY_MINIO
+      #- STORAGE_SECRET_ACCESS_KEY=SECRET_KEY_MINIO
+      #- STORAGE_REGION=eu-south
+      #- STORAGE_ENDPOINT=https://s3.DOMINIO.COM
+      #- STORAGE_FORCE_PATH_STYLE=true
+
+    ## 📧 Dados do SMTP
+      MAILER_SENDER_EMAIL: '@@email_admin_chatwoot@@ <@@email_admin_chatwoot@@>'
+      SMTP_DOMAIN: '@@dominio_smtp_chatwoot@@'
+      SMTP_ADDRESS: '@@smtp_email_chatwoot@@'
+      SMTP_PORT: '@@porta_smtp_chatwoot@@'
+      SMTP_SSL: '@@sobre_ssl@@'
+      SMTP_USERNAME: '@@user_smtp_chatwoot@@'
+      SMTP_PASSWORD: '@@senha_email_chatwoot@@'
+      SMTP_AUTHENTICATION: '@@SMTP_AUTHENTICATION@@'
+      SMTP_ENABLE_STARTTLS_AUTO: '@@chat_starttls@@'
+      SMTP_OPENSSL_VERIFY_MODE: 'peer'
+      MAILER_INBOUND_EMAIL_DOMAIN: '@@email_admin_chatwoot@@'
+
+    ## ⚙️ Melhorias
+      SIDEKIQ_CONCURRENCY: '10'
+      RACK_TIMEOUT_SERVICE_TIMEOUT: '0'
+      RAILS_MAX_THREADS: '5'
+      WEB_CONCURRENCY: '2'
+      ENABLE_RACK_ATTACK: 'false'
+
+    ## ⚡ Outras configurações
+      NODE_ENV: 'production'
+      RAILS_ENV: 'production'
+      INSTALLATION_ENV: 'docker'
+      RAILS_LOG_TO_STDOUT: 'true'
+      USE_INBOX_AVATAR_FOR_BOT: 'true'
+      ENABLE_ACCOUNT_SIGNUP: 'false'
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+
+## --------------------------- RUPTUR --------------------------- ##
+
+  chatwoot@@INSTANCE_SUFFIX@@_redis:
+    image: redis:latest  ## Versão do Redis
+    command: [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--port",
+        "6379"
+      ]
+
+    volumes:
+      - 'chatwoot@@INSTANCE_SUFFIX@@_redis:/data'
+
+    networks:
+      - '@@nome_rede_interna@@'
+
+    ## Descomente as linhas abaixo para uso externo
+    #ports:
+    #  - 6379:6379
+
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+
+## --------------------------- RUPTUR --------------------------- ##
+
+volumes:
+  chatwoot@@INSTANCE_SUFFIX@@_storage:
+    external: true
+    name: 'chatwoot@@INSTANCE_SUFFIX@@_storage'
+  chatwoot@@INSTANCE_SUFFIX@@_public:
+    external: true
+    name: 'chatwoot@@INSTANCE_SUFFIX@@_public'
+  chatwoot@@INSTANCE_SUFFIX@@_mailer:
+    external: true
+    name: 'chatwoot@@INSTANCE_SUFFIX@@_mailer'
+  chatwoot@@INSTANCE_SUFFIX@@_mailers:
+    external: true
+    name: 'chatwoot@@INSTANCE_SUFFIX@@_mailers'
+  chatwoot@@INSTANCE_SUFFIX@@_redis:
+    external: true
+    name: 'chatwoot@@INSTANCE_SUFFIX@@_redis'
+
+networks:
+  @@nome_rede_interna@@:
+    external: true
+    name: '@@nome_rede_interna@@'

@@ -1,56 +1,165 @@
-<img src="https://github.com/user-attachments/assets/f1381a28-79e2-4fea-984c-4440476cdcc2" alt="SetupOrion">
+# Ruptur Setup
 
-<p align="center">
-  Este Auto instalador é uma solução <b>100% gratuita</b>, com o intuito de ajudar toda a comunidade a instalar as principais ferramentas do mercado de Automações/Marketing em seu servidor.
-  <b>Você não precisa instalar todos os programas contidos no mesmo, pois você poderá escolher qual das ferramentas você quer instalar.</b>
-  Desenvolvido por <b>OrionDesign</b>. Ao utilizar o mesmo, <b>de os créditos</b>!
-</p>
- 
-<p align="center">
-  <a href="https://oriondesign.art.br/whatsapp1"><img src="https://github.com/user-attachments/assets/d0f7867f-5890-4fbc-a76a-47e22bdfed0c" alt="SetupOrion WhatsApp 1"></a>     
-  <a href="https://www.youtube.com/@OrionDesignOficial/playlists"><img src="https://github.com/user-attachments/assets/f2e217a1-ffc5-4c7d-98a9-bab5e98bb0c3" alt="SetupOrion Youtube"></a>     
-  <a href="https://oriondesign.art.br/whatsapp2"><img src="https://github.com/user-attachments/assets/1609b3ef-4b35-4daa-9124-24d74edab49a" alt="SetupOrion WhatsApp 2"></a>
-</p>
+Instalador Bash de aplicações para Docker Swarm, com identidade, rede, SMTP e
+origens de recursos configuráveis. Os dados da Ruptur são valores padrão: cada
+parceiro pode utilizar sua própria marca e infraestrutura.
 
----
+## Executar a partir do checkout
 
-<h3>📌 Observações e Recomendações</h3>
+Requisitos para instalação: Debian/Ubuntu, Bash 4.3+, acesso root e as dependências dos
+instaladores escolhidos. O menu pode instalar serviços e alterar o servidor.
+Use uma VPS destinada a essa instalação. A geração de modelos e a validação não
+exigem root ou Docker; a geração de chave aleatória usa OpenSSL.
 
-- Recomendo usar a VPS da **Hostinger**, **Hetzner**, **Digital Ocean** ou **AWS**. NÃO recomendamos e nem encorajamos usar outras VPS.
-- **O Servidor precisa estar vazio** para efetuar a instalação das ferramentas. Executar o Setup com outras ferramentas pode acarretar na perca dos dados.
-- Recomenda-se utilizar **Ubuntu 20.04**, com **minimo de 4Gb e 2vCPU**. É necessário analisar os requisitos de cada aplicação que for instalar.
+O modo de instalação prepara as dependências básicas ausentes via `apt-get`.
+Ajuda, validação e renderização saem antes dessa etapa. O bootstrap não executa
+atualizações completas do sistema operacional.
 
----
-
-<h3>💿 Como executar o instalador</h3>
-<p>Pensando em deixar a instalação das ferramamentas o mais fácil possível, criamos um código curto que vai atualizar o seu servidor, baixar o script do setup e executar o mesmo. Tudo para que qualquer um consiga usá-lo.</p>
-
-<p>Basta executar esse código no terminal do seu servidor:</p>
-
+```bash
+cp .env.example .env
+chmod 600 .env
+# Edite .env com os dados do seu ambiente.
+bash Setup --check-config
+bash Setup
 ```
-bash <(curl -sSL setup.oriondesign.art.br)
+
+`Setup` inicia `RupturSetup` no checkout local. Não baixe somente o arquivo
+`RupturSetup`: ele depende de `lib/`, `modules/`, `templates/` e `Extras/`.
+
+Quando distribuído isoladamente, `Setup` baixa o pacote completo do GitHub.
+A origem padrão é `rupturcloud/ruptur-setup`, referência `main`. O fork precisa
+estar publicado nessa origem antes de usar o bootstrap remoto. A publicação
+não faz parte desta alteração.
+
+```bash
+bash Setup --org minha-organizacao --repo meu-instalador --ref minha-versao
 ```
-<p>Após isso basta aguardar alguns instantes enquanto o script é iniciado e por fim, instalar as ferramentas que desejar.</p>
 
----
+Na execução remota, use `--org`, `--repo`, `--ref` ou as variáveis `GITHUB_*`
+para escolher o pacote **antes** do download. O `.env` é lido pelo instalador
+depois do download; passe `--config /caminho/absoluto/cliente.env` para um arquivo
+externo. No checkout, o arquivo padrão é `.env` ao lado de `RupturSetup`.
 
-<h3 align="center"><b>Ferramentas disponiveis</b></h3>
-<p align="center">
-  🔸 Traefik 🔸 Portainer 🔸 Chatwoot 🔸 Evolution API 🔸 MinIO 🔸 Typebot 🔸 N8N 🔸 Flowise 🔸 PgAdmin 4 🔸 Nocobase  🔸 Botpress  🔸 Wordpress 🔸 Baserow 🔸 MongoDB 🔸 RabbitMQ  🔸 Uptime Kuma 🔸 Cal.com 🔸 Mautic  🔸 Appsmith  🔸 Qdrant 🔸 Woofed CRM 🔸 Formbricks 🔸 NocoDB 🔸 Langfuse 🔸 Metabase 🔸 Odoo 🔸 Chatwoot Mega 🔸 Uno API 🔸 N8N + Nodes Quepasa 🔸 Quepasa API 🔸 Docuseal 🔸 Grafana 🔸 Prometheus 🔸 cAdvisor 🔸 Dify AI 🔸 Ollama 🔸 Affine 🔸 Directus 🔸 VaultWarden 🔸 NextCloud 🔸 Strapi 🔸 PhpMyAdmin 🔸 Supabase 🔸 Ntfy 🔸 LowCoder  🔸 LangFlow 🔸 OpenProject 🔸 ZEP 🔸 HumHub  🔸 Yourls 🔸 TwentyCRM 🔸 Mattermost 🔸 Outline 🔸 Focalboard 🔸 GLPI 🔸 Anything LLM 🔸 Excalidraw 🔸 Easy!Apointments 🔸 Documeso 🔸 Moodle 🔸 ToolJet 🔸 Stirling PDF 🔸 ClickHouse 🔸 RedisInsight 🔸 Traccar 🔸 Firecrawl 🔸 Wuzapi 🔸 krayin CRM 🔸 Planka WppConnect 🔸 Browserless 🔸 Frappe 🔸 Bolt 🔸 WiseMapping 🔸 Evo AI 🔸 Keycloak 🔸 Passbolt 🔸 Gotenberg 🔸 Wiki.js 🔸 AzuraCast 🔸 Shlink 🔸 RustDesk 🔸 Hoppscotch 🔸
-</p> 
+## Configuração de parceiros
 
----
+```bash
+bash RupturSetup --config cliente.env \
+  --domain https://cliente.example \
+  --brand "Minha Empresa" \
+  --chat-brand "Meu Atendimento" \
+  --network cliente-net \
+  --smtp-host smtp.cliente.example \
+  --smtp-user mail@cliente.example
+```
 
-<h3 align="center">📌 Principais contribuidores</h3>
-<a align="center" href="https://github.com/oriondesign2015/setuporion/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=oriondesign2015/setuporion" />
-</a>
+Precedência: argumentos > ambiente > arquivo `.env` > defaults. Nos fluxos
+interativos, os prompts mostram o valor efetivo; Enter o mantém, e uma resposta
+o substitui para aquela instalação. As aplicações do menu continuam solicitando
+os seus dados específicos. Os prompts SMTP usam a configuração central.
 
-<a href="https://star-history.dera.page/#oriondesign2015/SetupOrion&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=oriondesign2015/SetupOrion&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=oriondesign2015/SetupOrion&type=Date" />
-   <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=oriondesign2015/SetupOrion&type=Date" />
- </picture>
-</a>
+O arquivo aceita `CHAVE=valor`, comentários em linhas próprias e valores entre
+aspas simples ou duplas. Valores são literais: não use `export`, interpolação
+`${VAR}`, comandos Bash ou comentários ao final de um valor. Chaves desconhecidas
+são rejeitadas. Senhas não são executadas como código. O arquivo não é carregado
+com `source`.
 
+| Configuração | Default |
+|---|---|
+| `BASE_URL` | `https://ruptur.cloud` |
+| `BRAND_NAME` / `CHAT_BRAND_NAME` | `Ruptur` / `Ruptur-Chat` |
+| `SUPPORT_EMAIL` | `contato@ruptur.cloud` |
+| `SMTP_FROM_EMAIL` | `ruptur.cloud@gmail.com` |
+| `SMTP_USERNAME` | Remetente efetivo, se não informado |
+| `SMTP_HOST` / `SMTP_PASSWORD` | Solicitados; sem credenciais embutidas |
+| `SMTP_PORT` | `587` |
+| `DOCKER_NETWORK` | `ruptur-net` |
+| `MONITOR_DIR` | `/opt/monitor-ruptur` |
+| `SUPABASE_MCP_PATH` | `ruptur-setup` |
+
+`BASE_URL` aceita HTTP/HTTPS com hostname, sem caminho ou porta. O domínio do
+atendimento pode ser configurado separadamente em `CHAT_DOMAIN`. O host SMTP é
+independente do usuário e do remetente. Se um parceiro informar outro remetente
+e não especificar usuário SMTP, o login passa a ser o remetente dele.
+
+A rede gravada em `dados_vps` continua sendo utilizada por instalações existentes.
+`DOCKER_NETWORK` é o fallback para redes ainda não definidas. Para Evolution v1,
+`EVOLUTION_V1_PREFIX` pode receber o identificador de serviço/volumes já existente.
+Defina `MONITOR_DIR` com o caminho usado por instalações de monitoramento existentes.
+Nenhum volume ou banco existente é renomeado automaticamente.
+
+## Ruptur-Chat
+
+As variantes `standard` e `mega` usam, respectivamente, `CHATWOOT_IMAGE` e
+`CHATWOOT_MEGA_IMAGE`. Os defaults preservam as imagens `chatwoot/chatwoot:latest`
+e `sendingtk/chatwoot:latest`; para reprodutibilidade, configure uma tag ou digest
+que tenha sido validado no seu ambiente.
+
+Os modelos incluem `CW_ENABLE_ENTERPRISE=true` e `ENTERPRISE_TOKEN=true` na
+aplicação e no worker. Esses defaults são configuráveis. O suporte a eles depende
+da imagem: incluí-los **não comprova** ativação de recursos enterprise. O SQL de
+desbloqueio de `installation_configs` foi preservado. Campanhas e dashboards
+premium precisam de validação funcional na imagem implantada.
+
+Após a preparação do banco, o instalador aplica nome da instalação, marca,
+URLs e suporte via modelo `InstallationConfig`. Os e-mails usam a configuração
+de marca da aplicação, com fallback configurável. Não há código-fonte do frontend
+incluído neste repositório; logos e eventuais marcas compiladas na imagem dependem
+de seus recursos de personalização. Atualizações da imagem podem alterar esse
+comportamento.
+
+Para atualizar os templates de e-mail de uma instância, use os comandos do menu
+`chatwoot.mail [instancia]` ou `chatwoot.n.mail [instancia]`. A operação seleciona
+o serviço correspondente, faz backup dos templates e não remove containers de
+outras instalações.
+
+### Gerar uma stack sem instalar
+
+Configure `SMTP_HOST` e `SMTP_PASSWORD` em `.env`. Informe a senha do PostgreSQL
+por ambiente; `CHAT_SECRET_KEY` é opcional, e será gerada quando ausente.
+
+```bash
+read -rs -p 'Senha PostgreSQL: ' CHAT_POSTGRES_PASSWORD; echo
+export CHAT_POSTGRES_PASSWORD
+bash RupturSetup --render-chatwoot cliente.rendered.yaml \
+  --variant mega --instance cliente
+unset CHAT_POSTGRES_PASSWORD
+```
+
+O arquivo contém segredos e é criado com permissão `600`. Aspas e cifrões são
+escapados para YAML/Compose. Renderizar não cria bancos, volumes, redes ou
+serviços; os recursos externos devem existir antes de um deploy manual.
+
+## Organização e validação
+
+- `lib/config.sh`: configuração, argumentos, prompts e validação.
+- `lib/downloads.sh`: downloads e resolução de recursos.
+- `lib/templates.sh`: renderização literal, sem `eval`.
+- `lib/chatwoot.sh`, `modules/chatwoot.sh`: configuração e instalação do atendimento.
+- `lib/grafana.sh`, `templates/grafana/`: modelos do monitoramento.
+- `RupturSetup`: menu e demais instaladores existentes.
+
+Telemetria do instalador fica desativada por padrão. Para habilitá-la, configure
+`TELEMETRY_ENABLED=true` e `TELEMETRY_URL`; ela envia IP, ferramenta e estado.
+Isso não controla a telemetria própria de imagens de terceiros.
+
+Os workflows opcionais Quepasa exigem `QUEPASA_WORKFLOWS_URL` apontando para um
+diretório HTTPS com os arquivos esperados. Não foi inventado um repositório de
+workflows inexistente na organização do fork.
+
+Validação local, sem Docker:
+
+```bash
+npm ci --prefix tests
+npm test --prefix tests
+```
+
+No Windows, os testes usam Git Bash; em outros ambientes, `bash` no PATH.
+`BASH_BIN` permite informar outro executável. Node.js e o parser YAML são
+dependências **dos testes**, não da instalação Bash.
+O teste de renderização Grafana exige `jq` no PATH e é sinalizado como ignorado
+quando essa ferramenta não está disponível.
+
+Veja [o relatório de implementação](docs/white-label.md),
+[o inventário de mídias](docs/media-review.md) e
+[a proposta de MCP](docs/mcp.md). A licença MIT e as atribuições estão em
+[LICENSE.txt](LICENSE.txt).

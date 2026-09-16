@@ -2,13 +2,13 @@
 <html lang="pt-BR">
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; text-align: center;">
   <div style="width: 100%; margin: 0 auto; padding: 20px; box-sizing: border-box; text-align: center;">
-    <p style="font-size: 24px; font-family: Arial; font-weight: bold;">Convite para usar a plataforma <%= global_config['BRAND_NAME'] || 'Chatwoot' %></p>
+    <p style="font-size: 24px; font-family: Arial; font-weight: bold;">Convite para usar a plataforma <%= global_config['BRAND_NAME'].presence || ENV['BRAND_NAME'].presence || ENV['INSTALLATION_NAME'].presence || 'Ruptur-Chat' %></p>
     <div style="margin: 10px 0; border-top: 1px solid #eeeeee;"></div>
     <div style="font-size: 16px; font-family: Arial, sans-serif; text-align: center;">
       <p>Olá, <b><%= @resource.name %></b>, tudo bem?</p>
       <% account_user = @resource&.account_users&.first %>
       <% if account_user&.inviter.present? %>
-        <p>Você foi convidado pelo <b><%= account_user.inviter.name %></b> da <b><%= account_user.account.name %></b> para se juntar à equipe na nova plataforma de atendimento <b><%= global_config['BRAND_NAME'] || 'Chatwoot' %></b></p>
+        <p>Você foi convidado pelo <b><%= account_user.inviter.name %></b> da <b><%= account_user.account.name %></b> para se juntar à equipe na nova plataforma de atendimento <b><%= global_config['BRAND_NAME'].presence || ENV['BRAND_NAME'].presence || ENV['INSTALLATION_NAME'].presence || 'Ruptur-Chat' %></b></p>
       <% end %>
       <p>Você pode criar uma senha para acessar sua conta clicando no botão abaixo:</p>
     </div>

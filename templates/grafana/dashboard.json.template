@@ -34,7 +34,7 @@
       "targetBlank": true,
       "title": "GitHub",
       "type": "link",
-      "url": "https://github.com/OrionDesign2015/SetupOrion"
+      "url": "@@BASE_URL@@"
     },
     {
       "icon": "external link",
@@ -42,7 +42,7 @@
       "targetBlank": true,
       "title": "Youtube",
       "type": "link",
-      "url": "https://youtube.com/oriondesign_oficial"
+      "url": "@@VIDEO_URL@@"
     }
   ],
   "liveNow": false,
@@ -2036,7 +2036,7 @@
   "revision": 1,
   "schemaVersion": 39,
   "tags": [
-    "OrionDesign",
+    "@@BRAND_NAME@@",
     "Allan Peixoto"
   ],
   "templating": {
@@ -2093,8 +2093,8 @@
       {
         "current": {
           "selected": false,
-          "text": "node.oriondesign.art.br:80",
-          "value": "node.oriondesign.art.br:80"
+          "text": "@@NODE_EXPORTER@@",
+          "value": "@@NODE_EXPORTER@@"
         },
         "datasource": {
           "type": "prometheus",
@@ -2218,8 +2218,8 @@
       {
         "current": {
           "selected": false,
-          "text": "node.oriondesign.art.br:80",
-          "value": "node.oriondesign.art.br:80"
+          "text": "@@NODE_EXPORTER@@",
+          "value": "@@NODE_EXPORTER@@"
         },
         "datasource": {
           "type": "prometheus",

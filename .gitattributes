@@ -1,0 +1,9 @@
+* text=auto
+Setup text eol=lf
+RupturSetup text eol=lf
+*.sh text eol=lf
+*.template text eol=lf
+*.erb text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+LICENSE.txt text eol=lf

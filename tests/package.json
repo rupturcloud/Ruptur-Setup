@@ -1,0 +1,6 @@
+{
+  "name": "ruptur-setup-validation",
+  "private": true,
+  "scripts": { "test": "node --test white-label.test.cjs" },
+  "devDependencies": { "yaml": "2.9.1" }
+}
